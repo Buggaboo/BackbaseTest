@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
-import android.os.Handler;
 
 /**
  * Created by jasmsison on 26/03/2018.
@@ -25,6 +24,10 @@ public class ViewModel extends Observable {
     /**
      *
      * Convenience method to build the tree
+     * Since searching in the tree, is a series
+     * of 'reads'. Unless a new thread is granted
+     * access to the list, there are no deadlocks.
+     * And the app can immediately get values.
      *
      * @param trie
      * @param reader
@@ -35,14 +38,33 @@ public class ViewModel extends Observable {
         dataReader.fromJsonReader(root, reader);
     }
 
+    /**
+     *
+     * The EditText accesses this,
+     * we use the ViewModel for loose coupling, less messy code.
+     *
+     * @param input
+     */
     public void onFilter(final String input) {
         list.clear();
-        root.searchTree(input, list); // heavy operation?
+        root.searchTree(input, list); // Heavy operation? Dedicated thread? It seems overkill.
         setChanged();
         notifyObservers(list);
         clearChanged();
     }
 
+    /**
+     *
+     * When a selection is made from the list,
+     * this passes the selected trie node,
+     * to anyone who's listening.
+     * Also, loosely coupled.
+     *
+     * Normally, I'd use Rx or LiveData.
+     * An Observable suffices.
+     *
+     * @param node
+     */
     public void onSelectedCoordinates(CoordinateTrie node) {
         setChanged();
         notifyObservers(node);

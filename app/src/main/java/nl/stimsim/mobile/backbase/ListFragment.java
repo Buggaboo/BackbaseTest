@@ -2,7 +2,6 @@ package nl.stimsim.mobile.backbase;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -114,11 +113,11 @@ public class ListFragment extends Fragment implements Observer, TextWatcher {
 
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        ViewModel.getInstance().onFilter(charSequence.toString());
+
     }
 
     @Override
     public void afterTextChanged(Editable editable) {
-
+        ViewModel.getInstance().onFilter(editable.toString());
     }
 }

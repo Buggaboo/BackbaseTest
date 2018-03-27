@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import java.text.Normalizer;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Created by jasmsison on 26/03/2018.
@@ -25,7 +26,13 @@ public class CoordinateTrie {
     final public double coordLat;
     private CoordinateTrie[] trieChildren;
 
-    // Big assumption: all names are unique! // TODO double check
+    public static final Pattern WEIRD_BACKTICK = Pattern.compile("‘");
+    public static final Pattern RINGEL_SS = Pattern.compile("ß");
+    public static final Pattern EU = Pattern.compile("ø");
+    public static final Pattern SPACES = Pattern.compile("\\s+");
+    public static final Pattern DIACRITIC_REMOVER = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+
+    // Big assumption: all names are unique!
     // otherwise, (coordLong, coordLat) must be put in a list
 
     // ctor for the root node
@@ -48,7 +55,6 @@ public class CoordinateTrie {
         this.trieChildren = trieChildren;
     }
 
-    // This increases chance of collisions... we'll see
     public int getArrayIndex(char letter) {
         int delta = Character.getNumericValue(letter) - A;
         if (delta > 26) {
@@ -62,17 +68,14 @@ public class CoordinateTrie {
     // Best effort
     public String normalize(String input) {
 
-        // TODO if there's time, precompile the regexp
         String result =  Normalizer
-            .normalize(input.toLowerCase(), Normalizer.Form.NFD)
-            .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
-            // .replaceAll("\\W", "") // non letter stuff, e.g. '` etc. // Warning: this makes data disappear
-            .replaceAll("\\s+","") // remove spaces
-            .replaceAll("‘", "")
-            .replaceAll("ß", "ss")
-            .replaceAll("ø", "eu");
+            .normalize(input.toLowerCase(), Normalizer.Form.NFD);
 
-        //System.out.println(String.format("orig: %s, res: %s", input, result));
+        result = DIACRITIC_REMOVER.matcher(input).replaceAll("");
+        result = SPACES.matcher(result).replaceAll("");
+        result = WEIRD_BACKTICK.matcher(result).replaceAll("");
+        result = RINGEL_SS.matcher(result).replaceAll("ss");
+        result = EU.matcher(result).replaceAll("eu");
 
         return result;
     }
@@ -125,13 +128,6 @@ public class CoordinateTrie {
 
         char letter = normalized.charAt(charPosition);
         int arrayIndex = getArrayIndex(letter);
-
-        /*
-        if (BuildConfig.DEBUG) {
-            if (arrayIndex < 0)
-            Log.e("negative index", String.format("orig:%s; norm:%s; ltr:%s", original, normalized, letter));
-        }
-        */
 
         // last item
         if ((charPosition + 1) ==  normalized.length()) {

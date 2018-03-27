@@ -2,8 +2,8 @@ package nl.stimsim.mobile.backbase;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.view.inputmethod.InputMethodManager;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
