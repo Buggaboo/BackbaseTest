@@ -139,6 +139,40 @@ public class TrieUnitTest {
     }
 
     @Test
+    public void trieSorting() throws Exception {
+        String[] locationNonAlphabetical = new String[] {
+            "Sydney",
+            "Alabama",
+            "Arizona",
+            "Albuquerque",
+            "Anaheim"
+        };
+
+        CoordinateTrie root = new CoordinateTrie();
+        for (String locus : locationNonAlphabetical) {
+            root.buildTrie(null, locus, dud, dud);
+        }
+
+        ArrayList<CoordinateTrie> list = new ArrayList<>();
+
+        // basic test
+        root.filterLeaves(list);
+        assertEquals(locationNonAlphabetical.length, list.size());
+
+        String[] locationAlphabetical = new String[] {
+                "Alabama",
+                "Albuquerque",
+                "Anaheim",
+                "Arizona",
+                "Sydney"
+        };
+
+        for (int i=0; i<list.size(); i++) {
+            assertEquals(String.format("%s = %s", list.get(i).originalName, locationAlphabetical[i]),list.get(i).originalName, locationAlphabetical[i]);
+        }
+    }
+
+    @Test
     public void trieNormalizationDiacriticTest() throws Exception {
         String[] locations = new String[]{
                 "aàáâäãåā",
