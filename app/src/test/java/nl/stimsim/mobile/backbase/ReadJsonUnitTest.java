@@ -8,11 +8,11 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
+import static nl.stimsim.mobile.backbase.TrieUnitTest.stringifyTrieList;
 import static org.junit.Assert.assertEquals;
-import static nl.stimsim.mobile.backbase.TrieUnitTest.stringifyTrieSet;
 
 /**
  * Local unit test for the Trie implementation, which will execute on the development machine (host).
@@ -66,24 +66,24 @@ public class ReadJsonUnitTest {
 
         dataReader.fromJsonReader(root, reader);
 
-        Set<CoordinateTrie> set = new HashSet<>();
+        List<CoordinateTrie> set = new ArrayList<>();
         root.searchTree("bir", set);
         assertEquals(1, set.size());
 
         set.clear();
 
         root.searchTree("p", set);
-        assertEquals(stringifyTrieSet(set),3, set.size());
+        assertEquals(stringifyTrieList(set),3, set.size());
 
         set.clear();
 
         root.searchTree("a", set);
-        assertEquals(stringifyTrieSet(set),2, set.size());
+        assertEquals(stringifyTrieList(set),2, set.size());
 
         // Ptitsefabrika
         set.clear();
 
         root.searchTree("Ptitsefabrika", set);
-        assertEquals(stringifyTrieSet(set),1, set.size());
+        assertEquals(stringifyTrieList(set),1, set.size());
     }
 }

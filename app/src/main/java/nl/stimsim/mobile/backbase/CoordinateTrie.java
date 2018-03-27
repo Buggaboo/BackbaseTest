@@ -1,15 +1,9 @@
 package nl.stimsim.mobile.backbase;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.text.Normalizer;
-import java.util.Set;
-import java.util.regex.Pattern;
+import java.util.List;
 
 /**
  * Created by jasmsison on 26/03/2018.
@@ -68,11 +62,13 @@ class CoordinateTrie {
     // Best effort
     public String normalize(String input) {
 
+        // TODO if there's time, precompile the regexp
         String result =  Normalizer
             .normalize(input.toLowerCase(), Normalizer.Form.NFD)
             .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
             // .replaceAll("\\W", "") // non letter stuff, e.g. '` etc. // Warning: this makes data disappear
-            .replaceAll("\\s+",""); // remove spaces
+            .replaceAll("\\s+","") // remove spaces
+            .replaceAll("‘", "");
 
         //System.out.println(String.format("orig: %s, res: %s", input, result));
 
@@ -80,38 +76,38 @@ class CoordinateTrie {
     }
 
     // entry function, guarantees normalization
-    public void searchTree(String prefix, final Set<CoordinateTrie> set) {
-        searchTree(normalize(prefix), 0, set);
+    public void searchTree(String prefix, final List<CoordinateTrie> list) {
+        searchTree(normalize(prefix), 0, list);
     }
 
-    public void searchTree(String prefix, int charPosition, final Set<CoordinateTrie> set) {
+    public void searchTree(String prefix, int charPosition, final List<CoordinateTrie> list) {
         if (isLeaf && charPosition == prefix.length()) {
-            set.add(this);
+            list.add(this);
         }
 
         if (charPosition < prefix.length()) {
             CoordinateTrie trieChild;
             if ((trieChild = trieChildren[getArrayIndex(prefix.charAt(charPosition))]) != null) {
-                trieChild.searchTree(prefix, charPosition+1, set);
+                trieChild.searchTree(prefix, charPosition+1, list);
             }
         }else {
             for(CoordinateTrie trieNode : trieChildren) {
                 if (trieNode != null) {
-                    trieNode.filterLeaves(set);
+                    trieNode.filterLeaves(list);
                 }
             }
         }
     }
 
     // add leaves indiscriminately
-    public void filterLeaves(final Set<CoordinateTrie> set) {
+    public void filterLeaves(final List<CoordinateTrie> list) {
         if (isLeaf) {
-            set.add(this);
+            list.add(this);
         }
 
         for(CoordinateTrie trieNode : trieChildren) {
             if (trieNode != null) {
-                trieNode.filterLeaves(set);
+                trieNode.filterLeaves(list);
             }
         }
     }

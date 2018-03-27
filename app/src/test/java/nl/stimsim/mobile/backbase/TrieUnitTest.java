@@ -2,11 +2,11 @@ package nl.stimsim.mobile.backbase;
 
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Local unit test for the Trie implementation, which will execute on the development machine (host).
@@ -14,9 +14,9 @@ import static org.junit.Assert.*;
 public class TrieUnitTest {
     final static float dud = 1.0f;
 
-    public static String stringifyTrieSet(Set<CoordinateTrie> set) {
+    public static String stringifyTrieList(List<CoordinateTrie> list) {
         StringBuilder stringBuilder = new StringBuilder();
-        for (CoordinateTrie s : set) {
+        for (CoordinateTrie s : list) {
             stringBuilder.append(s.originalName).append(" ");
         }
         return stringBuilder.toString().trim();
@@ -34,19 +34,19 @@ public class TrieUnitTest {
             root.buildTrie(null, locus, dud, dud);
         }
 
-        HashSet<CoordinateTrie> set = new HashSet<>();
-        root.filterLeaves(set);
+        ArrayList<CoordinateTrie> list = new ArrayList<>();
+        root.filterLeaves(list);
 
-        assertEquals(locations.length, set.size());
+        assertEquals(locations.length, list.size());
 
-        Set<String> result = new HashSet<>();
+        List<String> result = new ArrayList<>();
 
         for (String locus : locations) {
             result.add(locus);
         }
 
-        for (CoordinateTrie node : set) {
-            assertTrue(node.normalizedName + " in " + stringifyTrieSet(set), result.contains(node.normalizedName));
+        for (CoordinateTrie node : list) {
+            assertTrue(node.normalizedName + " in " + stringifyTrieList(list), result.contains(node.normalizedName));
         }
     }
 
@@ -63,51 +63,51 @@ public class TrieUnitTest {
             root.buildTrie(null, locus, dud, dud);
         }
 
-        HashSet<CoordinateTrie> set = new HashSet<>();
-        root.filterLeaves(set);
+        ArrayList<CoordinateTrie> list = new ArrayList<>();
+        root.filterLeaves(list);
 
-        assertEquals(locations.length, set.size());
+        assertEquals(locations.length, list.size());
 
-        set.clear();
+        list.clear();
 
-        root.searchTree("a", set);
-        assertTrue(stringifyTrieSet(set), 4 == set.size());
+        root.searchTree("a", list);
+        assertTrue(stringifyTrieList(list), 4 == list.size());
 
-        set.clear();
+        list.clear();
 
-        root.searchTree("z", set);
-        assertTrue(stringifyTrieSet(set), 4 == set.size());
+        root.searchTree("z", list);
+        assertTrue(stringifyTrieList(list), 4 == list.size());
 
-        set.clear();
+        list.clear();
 
-        root.searchTree("aa", set);
-        assertTrue(stringifyTrieSet(set), 3 == set.size());
+        root.searchTree("aa", list);
+        assertTrue(stringifyTrieList(list), 3 == list.size());
 
-        set.clear();
+        list.clear();
 
-        root.searchTree("aaa", set);
-        assertTrue(stringifyTrieSet(set), 2 == set.size());
+        root.searchTree("aaa", list);
+        assertTrue(stringifyTrieList(list), 2 == list.size());
 
-        set.clear();
+        list.clear();
 
-        root.searchTree("aaaa", set);
-        assertTrue(stringifyTrieSet(set), 1 == set.size());
+        root.searchTree("aaaa", list);
+        assertTrue(stringifyTrieList(list), 1 == list.size());
 
-        set.clear();
+        list.clear();
 
-        root.searchTree("az", set);
-        assertTrue(stringifyTrieSet(set), 0 == set.size());
+        root.searchTree("az", list);
+        assertTrue(stringifyTrieList(list), 0 == list.size());
 
-        set.clear();
+        list.clear();
 
         // TODO in the UI filter on non-alphabetical values
-        root.searchTree("doesn't exist ''''", set);
-        assertTrue(stringifyTrieSet(set), 0 == set.size());
+        root.searchTree("doesn't exist ''''", list);
+        assertTrue(stringifyTrieList(list), 0 == list.size());
 
-        set.clear();
+        list.clear();
 
-        root.searchTree(" a ", set);
-        assertTrue(stringifyTrieSet(set), 4 == set.size());
+        root.searchTree(" a ", list);
+        assertTrue(stringifyTrieList(list), 4 == list.size());
     }
 
 
@@ -124,15 +124,16 @@ public class TrieUnitTest {
 
         CoordinateTrie root = new CoordinateTrie();
 
-        HashSet<CoordinateTrie> set = new HashSet<>();
+        ArrayList<CoordinateTrie> list = new ArrayList<>();
 
         for (String locus : locations) {
             root.normalize(locus); // see if nothing breaks
             root.buildTrie(null, locus, dud, dud);
-            root.filterLeaves(set);
         }
 
-        assertEquals(stringifyTrieSet(set), 5, set.size());
+        root.filterLeaves(list);
+
+        assertEquals(stringifyTrieList(list), 5, list.size());
     }
 
     @Test
@@ -153,20 +154,20 @@ public class TrieUnitTest {
             root.buildTrie(null, locus, dud, dud);
         }
 
-        HashSet<CoordinateTrie> set = new HashSet<>();
+        ArrayList<CoordinateTrie> list = new ArrayList<>();
 
         // basic test
-        root.filterLeaves(set);
-        assertEquals(locations.length, set.size());
+        root.filterLeaves(list);
+        assertEquals(locations.length, list.size());
 
         // a lotta character 'a's
         String alot = "aaaaaaaa";
 
-        for (int i = 1; i <= set.size(); i++) {
-            set.clear();
+        for (int i = 1; i <= list.size(); i++) {
+            list.clear();
             String substring = alot.substring(0, i);
-            root.searchTree(substring, set);
-            assertEquals(substring + " in " + stringifyTrieSet(set), (locations.length + 1) - i, set.size());
+            root.searchTree(substring, list);
+            assertEquals(substring + " in " + stringifyTrieList(list), (locations.length + 1) - i, list.size());
         }
 
     }
