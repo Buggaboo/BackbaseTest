@@ -1,4 +1,4 @@
-package nl.stimsim.mobile.backbase;
+package nl.stimsim.mobile.backbase.model;
 
 import android.support.annotation.NonNull;
 
@@ -14,15 +14,15 @@ import java.util.List;
  * but longer names may subsume other shorter names,
  * e.g. "aab", "aa"... the 2nd is a stepping stone for the first.
  */
-class CoordinateTrie {
-    public static final int A = Character.getNumericValue('a');
-    final String countryAbbreviation;
+public class CoordinateTrie {
+    private static final int A = Character.getNumericValue('a');
+    final public String countryAbbreviation;
     final char prefixLetter;
     final boolean isLeaf; // default false
-    final String normalizedName;
-    final String originalName;
-    final double coordLong;
-    final double coordLat;
+    final public String normalizedName;
+    final public String originalName;
+    final public double coordLong;
+    final public double coordLat;
     private CoordinateTrie[] trieChildren;
 
     // Big assumption: all names are unique! // TODO double check
@@ -68,7 +68,9 @@ class CoordinateTrie {
             .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
             // .replaceAll("\\W", "") // non letter stuff, e.g. '` etc. // Warning: this makes data disappear
             .replaceAll("\\s+","") // remove spaces
-            .replaceAll("‘", "");
+            .replaceAll("‘", "")
+            .replaceAll("ß", "ss")
+            .replaceAll("ø", "eu");
 
         //System.out.println(String.format("orig: %s, res: %s", input, result));
 

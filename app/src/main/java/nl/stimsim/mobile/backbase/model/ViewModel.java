@@ -1,4 +1,4 @@
-package nl.stimsim.mobile.backbase;
+package nl.stimsim.mobile.backbase.model;
 
 import com.google.gson.stream.JsonReader;
 
@@ -18,9 +18,21 @@ public class ViewModel extends Observable {
         return ourInstance;
     }
 
+    /**
+     *
+     * Convenience method to build the tree
+     *
+     * @param trie
+     * @param reader
+     * @throws IOException
+     */
     public void setTrie(final CoordinateTrie trie, final JsonReader reader) throws IOException {
         this.root = trie;
         dataReader.fromJsonReader(root, reader);
+    }
+
+    public void onSelectedCoordinates(CoordinateTrie node) {
+        notifyObservers(node);
     }
 
     private ViewModel() {

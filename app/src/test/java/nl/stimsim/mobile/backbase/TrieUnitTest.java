@@ -5,6 +5,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.stimsim.mobile.backbase.model.CoordinateTrie;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -133,7 +135,7 @@ public class TrieUnitTest {
 
         root.filterLeaves(list);
 
-        assertEquals(stringifyTrieList(list), 5, list.size());
+        assertEquals(stringifyTrieList(list), 5 /* the unicode mapping is incomplete */, list.size());
     }
 
     @Test

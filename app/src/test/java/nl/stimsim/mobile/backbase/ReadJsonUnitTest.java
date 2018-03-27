@@ -11,6 +11,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.stimsim.mobile.backbase.model.CoordinateTrie;
+import nl.stimsim.mobile.backbase.model.DataReader;
+
 import static nl.stimsim.mobile.backbase.TrieUnitTest.stringifyTrieList;
 import static org.junit.Assert.assertEquals;
 

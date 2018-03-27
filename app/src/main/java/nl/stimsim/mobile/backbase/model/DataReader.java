@@ -1,4 +1,4 @@
-package nl.stimsim.mobile.backbase;
+package nl.stimsim.mobile.backbase.model;
 
 import com.google.gson.stream.JsonReader;
 
