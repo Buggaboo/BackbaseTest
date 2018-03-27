@@ -1,5 +1,7 @@
 package nl.stimsim.mobile.backbase;
 
+import android.support.annotation.NonNull;
+
 import java.text.Normalizer;
 import java.util.Set;
 
@@ -17,8 +19,8 @@ class CoordinateTrie {
     final boolean isLeaf; // default false
     final String normalizedName;
     final String originalName;
-    final float coordLong;
-    final float coordLat;
+    final double coordLong;
+    final double coordLat;
     private CoordinateTrie[] trieChildren;
 
     // Big assumption: all names are unique! // TODO double check
@@ -26,14 +28,14 @@ class CoordinateTrie {
 
     // ctor for the root node
     public CoordinateTrie() {
-        this(null, null, 0.0f, 0.0f, (char) 0, false, new CoordinateTrie[26]);
+        this(null, null, 0.0f, 0.0f, (char) 0, false, allocateEmptyTrieArray());
     }
 
     private CoordinateTrie(char normalizedLowercasedLetter) {
-        this(null, null, 0.0f, 0.0f, normalizedLowercasedLetter, false, new CoordinateTrie[26]);
+        this(null, null, 0.0f, 0.0f, normalizedLowercasedLetter, false, allocateEmptyTrieArray());
     }
 
-    private CoordinateTrie(String normalizedName, String originalName, float coordLong, float coordLat, char letter, boolean isLeaf, CoordinateTrie[] trieChildren) {
+    private CoordinateTrie(String normalizedName, String originalName, double coordLong, double coordLat, char letter, boolean isLeaf, CoordinateTrie[] trieChildren) {
         this.isLeaf = isLeaf;
         this.normalizedName = normalizedName;
         this.originalName = originalName;
@@ -50,7 +52,8 @@ class CoordinateTrie {
     public String normalize(String s) {
         return Normalizer
                 .normalize(s, Normalizer.Form.NFD) // TODO test normalization
-                .replaceAll("[^\\p{ASCII}]", "") // TODO test spaces
+                //.replaceAll("[^\\p{ASCII}]", "") // TODO test spaces
+                .replaceAll( "\\W", "" )
                 .toLowerCase() // TODO test lowercasing
                 .trim(); // TODO test trimming;
     }
@@ -93,13 +96,17 @@ class CoordinateTrie {
     }
 
     // entry function, guarantees normalization
-    public void buildTrie(String original, float coordLong, float coordLat) {
+    public void buildTrie(String original, double coordLong, double coordLat) {
         // 0. normalize
         // 1. Create the root, then enter recursion
         buildTrie(original, normalize(original), 0, coordLong, coordLat);
     }
 
-    public void buildTrie(String original, String normalized, int charPosition, float coordLong, float coordLat) {
+    public void buildTrie(String original, String normalized, int charPosition, double coordLong, double coordLat) {
+
+        if (BuildConfig.DEBUG) {
+            assert normalized.length() == original.length();
+        }
 
         char letter = normalized.charAt(charPosition);
         int arrayIndex = getArrayIndex(letter);
@@ -107,7 +114,7 @@ class CoordinateTrie {
         // last item
         if ((charPosition + 1) ==  normalized.length()) {
             // A leaf trie node, can still be a stepping stone, for another leaf
-            trieChildren[arrayIndex] = new CoordinateTrie(normalized, original, coordLong, coordLat, letter, true, trieChildren[arrayIndex] == null ? new CoordinateTrie[26] : trieChildren[arrayIndex].trieChildren);
+            trieChildren[arrayIndex] = new CoordinateTrie(normalized, original, coordLong, coordLat, letter, true, trieChildren[arrayIndex] == null ? allocateEmptyTrieArray() : trieChildren[arrayIndex].trieChildren);
             return;
         }
 
@@ -127,6 +134,11 @@ class CoordinateTrie {
         }
     }
 
+    @NonNull
+    private static CoordinateTrie[] allocateEmptyTrieArray() {
+        return new CoordinateTrie[26];
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -136,8 +148,8 @@ class CoordinateTrie {
 
         if (prefixLetter != that.prefixLetter) return false;
         if (isLeaf != that.isLeaf) return false;
-        if (Float.compare(that.coordLong, coordLong) != 0) return false;
-        if (Float.compare(that.coordLat, coordLat) != 0) return false;
+        if (Double.compare(that.coordLong, coordLong) != 0) return false;
+        if (Double.compare(that.coordLat, coordLat) != 0) return false;
         if (!normalizedName.equals(that.normalizedName)) return false;
         return originalName.equals(that.originalName);
     }
@@ -148,8 +160,8 @@ class CoordinateTrie {
         result = 31 * result + (isLeaf ? 1 : 0);
         result = 31 * result + normalizedName.hashCode();
         result = 31 * result + originalName.hashCode();
-        result = 31 * result + (coordLong != +0.0f ? Float.floatToIntBits(coordLong) : 0);
-        result = 31 * result + (coordLat != +0.0f ? Float.floatToIntBits(coordLat) : 0);
+        result = (int) (31 * result + (coordLong != +0.0f ? Double.doubleToLongBits(coordLong) : 0));
+        result = (int) (31 * result + (coordLat != +0.0f ? Double.doubleToLongBits(coordLat) : 0));
         return result;
     }
 }

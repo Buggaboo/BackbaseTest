@@ -9,20 +9,14 @@ import java.util.Observable;
 
 public class ViewModel extends Observable {
     private static final ViewModel ourInstance = new ViewModel();
-    private CoordinateTrie trie;
+    private CoordinateTrie root;
 
     public static ViewModel getInstance() {
         return ourInstance;
     }
 
     public void setTrie(CoordinateTrie trie) {
-        this.trie = trie;
-    }
-
-    public void searchPattern(String s) {
-        // TODO activate later
-        // Map<String, Map.Entry> coordinates = trie.searchTree(s);
-        // notifyObservers(coordinates);
+        this.root = trie;
     }
 
     private ViewModel() {
