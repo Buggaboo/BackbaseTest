@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import nl.stimsim.mobile.backbase.model.CoordinateTrie;
+import nl.stimsim.mobile.backbase.model.ViewModel;
+
 /**
  * Created by jasmsison on 27/03/2018.
  */
@@ -24,6 +27,7 @@ public class App extends Application {
 
         // KISS, no AsyncTask, if the app is killed before this completes, too bad
         // the resources will be cleaned up in the 'finally' block
+        // ART's GC will do the rest
         root = new CoordinateTrie();
         new Thread(new Runnable(){
             public void run() {

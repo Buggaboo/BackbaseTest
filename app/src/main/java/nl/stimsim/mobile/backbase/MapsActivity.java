@@ -1,7 +1,9 @@
 package nl.stimsim.mobile.backbase;
 
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.FragmentTransaction;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -10,18 +12,33 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+import java.util.Observable;
+import java.util.Observer;
 
+import nl.stimsim.mobile.backbase.model.CoordinateTrie;
+
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, Observer {
+
+    public static final String MAP_TAG = "MAP_TAG";
     private GoogleMap mMap;
+    private ListFragment listFragment;
+    private SupportMapFragment mapFragment;
+    private CoordinateTrie selectedNode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        FragmentManager supportFragmentManager = getSupportFragmentManager();
+
+        FragmentTransaction tx = supportFragmentManager.beginTransaction();
+        listFragment = (ListFragment) supportFragmentManager.findFragmentByTag(ListFragment.TAG);
+        if (listFragment == null) {
+            listFragment = listFragment.newInstance();
+            tx.add(R.id.nest, listFragment, ListFragment.TAG)
+                    .addToBackStack(ListFragment.TAG)
+                    .commit();
+        }
     }
 
 
@@ -39,8 +56,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng coordinates = new LatLng(selectedNode.coordLat, selectedNode.coordLong);
+        mMap.addMarker(new MarkerOptions().position(coordinates).title(selectedNode.originalName));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(coordinates));
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        if (o instanceof CoordinateTrie) {
+            // 0. set the coordinates first
+            selectedNode = (CoordinateTrie) o;
+
+            // 1. prepare the map
+            FragmentManager supportFragmentManager = getSupportFragmentManager();
+            FragmentTransaction tx = supportFragmentManager.beginTransaction();
+            mapFragment = (SupportMapFragment) supportFragmentManager.findFragmentByTag(MAP_TAG);
+            if (listFragment == null) {
+                listFragment = listFragment.newInstance();
+                tx.add(R.id.nest, listFragment, ListFragment.TAG)
+                        .addToBackStack(ListFragment.TAG)
+                        .commit();
+            }
+
+            // 2. load the map, onMapReady should kick in
+            mapFragment.getMapAsync(this);
+        }
     }
 }

@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Backbase</string>
     <string name="title_activity_maps">BackbaseMap</string>
+    <string name="no_items_found">No items found</string>
 </resources>
