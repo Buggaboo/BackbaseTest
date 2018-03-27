@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.view.inputmethod.InputMethodManager;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,6 +17,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import nl.stimsim.mobile.backbase.model.CoordinateTrie;
+import nl.stimsim.mobile.backbase.model.ViewModel;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, Observer {
 
@@ -29,6 +31,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        ViewModel.getInstance().addObserver(this);
+
         FragmentManager supportFragmentManager = getSupportFragmentManager();
 
         FragmentTransaction tx = supportFragmentManager.beginTransaction();
@@ -53,12 +58,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        hideSoftKeyBoard();
+
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
         LatLng coordinates = new LatLng(selectedNode.coordLat, selectedNode.coordLong);
         mMap.addMarker(new MarkerOptions().position(coordinates).title(selectedNode.originalName));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(coordinates));
+    }
+
+    private void hideSoftKeyBoard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+
+        if(imm.isAcceptingText()) {
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
     }
 
     @Override
@@ -71,15 +86,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             FragmentManager supportFragmentManager = getSupportFragmentManager();
             FragmentTransaction tx = supportFragmentManager.beginTransaction();
             mapFragment = (SupportMapFragment) supportFragmentManager.findFragmentByTag(MAP_TAG);
-            if (listFragment == null) {
-                listFragment = listFragment.newInstance();
-                tx.add(R.id.nest, listFragment, ListFragment.TAG)
+            if (mapFragment == null) {
+                mapFragment = SupportMapFragment.newInstance();
+                tx.add(R.id.nest, mapFragment, ListFragment.TAG)
                         .addToBackStack(ListFragment.TAG)
                         .commit();
             }
 
             // 2. load the map, onMapReady should kick in
             mapFragment.getMapAsync(this);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        ViewModel.getInstance().deleteObserver(this);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+        if (backStackEntryCount > 1) {
+            super.onBackPressed();
+        }else {
+            finish();
         }
     }
 }

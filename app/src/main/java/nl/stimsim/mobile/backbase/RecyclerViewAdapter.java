@@ -10,6 +10,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import nl.stimsim.mobile.backbase.model.CoordinateTrie;
+import nl.stimsim.mobile.backbase.model.ViewModel;
 
 public class RecyclerViewAdapter extends RecyclerViewEmptySupport.Adapter<RecyclerViewAdapter.ViewHolder> {
 
@@ -30,9 +31,14 @@ public class RecyclerViewAdapter extends RecyclerViewEmptySupport.Adapter<Recycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         CoordinateTrie trie = coordinates.get(position);
+        holder.trie = trie;
         holder.nameText.setText(trie.originalName);
-        holder.descText.setText("longitude: " + String.valueOf(trie.coordLong));
-        holder.descText2.setText("latitude: "  + String.valueOf(trie.coordLat));
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder
+                .append("long.: ").append(String.valueOf(trie.coordLong))
+                .append(" lat.: ").append(String.valueOf(trie.coordLat));
+        holder.descText.setText(stringBuilder.toString());
+        holder.descText2.setText(trie.countryAbbreviation);
     }
 
     @Override
@@ -50,6 +56,9 @@ public class RecyclerViewAdapter extends RecyclerViewEmptySupport.Adapter<Recycl
         @Nullable
         public TextView nameText, descText, descText2;
 
+        @Nullable
+        public CoordinateTrie trie;
+
         public ViewHolder(View view) {
             super(view);
             nameText = view.findViewById(R.id.name);
@@ -60,7 +69,7 @@ public class RecyclerViewAdapter extends RecyclerViewEmptySupport.Adapter<Recycl
 
         @Override
         public void onClick(View view) {
-            // TODO go to the map
+            ViewModel.getInstance().onSelectedCoordinates(trie);
         }
     }
 }

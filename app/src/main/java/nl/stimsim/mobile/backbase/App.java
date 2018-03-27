@@ -25,7 +25,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // KISS, no AsyncTask, if the app is killed before this completes, too bad
+        // KISS, if the app is killed before this completes, too bad
         // the resources will be cleaned up in the 'finally' block
         // ART's GC will do the rest
         root = new CoordinateTrie();
