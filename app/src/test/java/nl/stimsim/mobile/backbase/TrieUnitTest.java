@@ -15,11 +15,11 @@ public class TrieUnitTest {
     final static float dud = 1.0f;
 
     public static String stringifyTrieSet(Set<CoordinateTrie> set) {
-        String content = "";
+        StringBuilder stringBuilder = new StringBuilder();
         for (CoordinateTrie s : set) {
-            content += s.originalName + " "; // O(n^2) // so what
+            stringBuilder.append(s.originalName).append(" ");
         }
-        return content.trim();
+        return stringBuilder.toString().trim();
     }
 
     @Test
@@ -31,7 +31,7 @@ public class TrieUnitTest {
 
         CoordinateTrie root = new CoordinateTrie();
         for (String locus : locations) {
-            root.buildTrie(locus, dud, dud);
+            root.buildTrie(null, locus, dud, dud);
         }
 
         HashSet<CoordinateTrie> set = new HashSet<>();
@@ -60,7 +60,7 @@ public class TrieUnitTest {
 
         CoordinateTrie root = new CoordinateTrie();
         for (String locus : locations) {
-            root.buildTrie(locus, dud, dud);
+            root.buildTrie(null, locus, dud, dud);
         }
 
         HashSet<CoordinateTrie> set = new HashSet<>();
@@ -110,8 +110,33 @@ public class TrieUnitTest {
         assertTrue(stringifyTrieSet(set), 4 == set.size());
     }
 
+
+
     @Test
-    public void normalizationTest() throws Exception {
+    public void normalizeHangulEtcTest() throws Exception {
+        String[] locations = new String[]{
+                "괴내",
+                "æÆ",
+                "ß",
+                "ø",
+                "ł"
+        };
+
+        CoordinateTrie root = new CoordinateTrie();
+
+        HashSet<CoordinateTrie> set = new HashSet<>();
+
+        for (String locus : locations) {
+            root.normalize(locus); // see if nothing breaks
+            root.buildTrie(null, locus, dud, dud);
+            root.filterLeaves(set);
+        }
+
+        assertEquals(stringifyTrieSet(set), 5, set.size());
+    }
+
+    @Test
+    public void trieNormalizationDiacriticTest() throws Exception {
         String[] locations = new String[]{
                 "aàáâäãåā",
                 "aàáâäãå",
@@ -121,12 +146,11 @@ public class TrieUnitTest {
                 "aàá",
                 "aà",
                 "a"
-                // "æÆ", // breaks horribly, TODO fix this from the UI side, write a test for this
         };
 
         CoordinateTrie root = new CoordinateTrie();
         for (String locus : locations) {
-            root.buildTrie(locus, dud, dud);
+            root.buildTrie(null, locus, dud, dud);
         }
 
         HashSet<CoordinateTrie> set = new HashSet<>();

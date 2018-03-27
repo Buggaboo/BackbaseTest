@@ -1,19 +1,8 @@
 package nl.stimsim.mobile.backbase;
 
-import android.content.Context;
-import android.content.res.Resources;
-import android.support.annotation.RawRes;
-import android.util.Log;
-
 import com.google.gson.stream.JsonReader;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 // import android.util.JsonReader; // This one isn't mocked of course, gotta use GSON
 
@@ -24,6 +13,8 @@ import java.io.InputStreamReader;
 public class DataReader {
 
     // probably the worst performing implementation, it should work though, albeit slowly
+    /*
+    @Deprecated
     public void fromJSONArray(final CoordinateTrie root, final JSONArray array) {
         for(int i=0; i<array.length(); i++) {
             try {
@@ -41,14 +32,15 @@ public class DataReader {
         }
     }
 
+    /// TODO move this to the Application/Activity
     public void fromRawJsonReader(final CoordinateTrie root, Context context, @RawRes int rawResId) throws IOException {
         Resources resources = context.getResources();
         InputStream is = resources.openRawResource(rawResId);
         fromJsonReader(root, is);
     }
+    */
 
-    public void fromJsonReader(final CoordinateTrie root, final InputStream is) throws IOException {
-        JsonReader reader = new JsonReader(new InputStreamReader(is, "UTF-8"));
+    public void fromJsonReader(final CoordinateTrie root, final JsonReader reader) throws IOException {
         reader.beginArray();
         while (reader.hasNext()) {
             String country = null;
@@ -66,7 +58,7 @@ public class DataReader {
                 } else if (name.equals("coord")) {
                     reader.beginObject();
                     while (reader.hasNext()) {
-                        String coordName = reader.nextName(); // TODO add this to the trie
+                        String coordName = reader.nextName();
                         if (coordName.equals("lon")) {
                             lon = reader.nextDouble();
                         } else if (coordName.equals("lat")) {
@@ -81,7 +73,7 @@ public class DataReader {
                 }
             }
             reader.endObject();
-            root.buildTrie(locationName, lon, lat);
+            root.buildTrie(country, locationName, lon, lat);
         }
         reader.endArray();
     }

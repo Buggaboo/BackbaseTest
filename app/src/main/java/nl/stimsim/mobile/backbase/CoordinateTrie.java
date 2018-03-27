@@ -1,9 +1,15 @@
 package nl.stimsim.mobile.backbase;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.text.Normalizer;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Created by jasmsison on 26/03/2018.
@@ -15,6 +21,8 @@ import java.util.Set;
  * e.g. "aab", "aa"... the 2nd is a stepping stone for the first.
  */
 class CoordinateTrie {
+    public static final int A = Character.getNumericValue('a');
+    final String countryAbbreviation;
     final char prefixLetter;
     final boolean isLeaf; // default false
     final String normalizedName;
@@ -28,14 +36,15 @@ class CoordinateTrie {
 
     // ctor for the root node
     public CoordinateTrie() {
-        this(null, null, 0.0f, 0.0f, (char) 0, false, allocateEmptyTrieArray());
+        this(null, null, null, 0.0f, 0.0f, (char) 0, false, allocateEmptyTrieArray());
     }
 
     private CoordinateTrie(char normalizedLowercasedLetter) {
-        this(null, null, 0.0f, 0.0f, normalizedLowercasedLetter, false, allocateEmptyTrieArray());
+        this(null, null, null, 0.0f, 0.0f, normalizedLowercasedLetter, false, allocateEmptyTrieArray());
     }
 
-    private CoordinateTrie(String normalizedName, String originalName, double coordLong, double coordLat, char letter, boolean isLeaf, CoordinateTrie[] trieChildren) {
+    private CoordinateTrie(String countryAbbreviation, String normalizedName, String originalName, double coordLong, double coordLat, char letter, boolean isLeaf, CoordinateTrie[] trieChildren) {
+        this.countryAbbreviation = countryAbbreviation;
         this.isLeaf = isLeaf;
         this.normalizedName = normalizedName;
         this.originalName = originalName;
@@ -45,17 +54,29 @@ class CoordinateTrie {
         this.trieChildren = trieChildren;
     }
 
+    // This increases chance of collisions... we'll see
     public int getArrayIndex(char letter) {
-        return Character.getNumericValue(letter) - Character.getNumericValue('a'); // normalize to zero-index
+        int delta = Character.getNumericValue(letter) - A;
+        if (delta > 26) {
+            return delta % 26;
+        }else if (delta < 0) {
+            return -delta;
+        }
+        return delta; // normalize to zero-index
     }
 
-    public String normalize(String s) {
-        return Normalizer
-                .normalize(s, Normalizer.Form.NFD) // TODO test normalization
-                //.replaceAll("[^\\p{ASCII}]", "") // TODO test spaces
-                .replaceAll( "\\W", "" )
-                .toLowerCase() // TODO test lowercasing
-                .trim(); // TODO test trimming;
+    // Best effort
+    public String normalize(String input) {
+
+        String result =  Normalizer
+            .normalize(input.toLowerCase(), Normalizer.Form.NFD)
+            .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+            // .replaceAll("\\W", "") // non letter stuff, e.g. '` etc. // Warning: this makes data disappear
+            .replaceAll("\\s+",""); // remove spaces
+
+        //System.out.println(String.format("orig: %s, res: %s", input, result));
+
+        return result;
     }
 
     // entry function, guarantees normalization
@@ -96,25 +117,28 @@ class CoordinateTrie {
     }
 
     // entry function, guarantees normalization
-    public void buildTrie(String original, double coordLong, double coordLat) {
+    public void buildTrie(String country, String original, double coordLong, double coordLat) {
         // 0. normalize
         // 1. Create the root, then enter recursion
-        buildTrie(original, normalize(original), 0, coordLong, coordLat);
+        buildTrie(country, original, normalize(original), 0, coordLong, coordLat);
     }
 
-    public void buildTrie(String original, String normalized, int charPosition, double coordLong, double coordLat) {
-
-        if (BuildConfig.DEBUG) {
-            assert normalized.length() == original.length();
-        }
+    public void buildTrie(String country, String original, String normalized, int charPosition, double coordLong, double coordLat) {
 
         char letter = normalized.charAt(charPosition);
         int arrayIndex = getArrayIndex(letter);
 
+        /*
+        if (BuildConfig.DEBUG) {
+            if (arrayIndex < 0)
+            Log.e("negative index", String.format("orig:%s; norm:%s; ltr:%s", original, normalized, letter));
+        }
+        */
+
         // last item
         if ((charPosition + 1) ==  normalized.length()) {
             // A leaf trie node, can still be a stepping stone, for another leaf
-            trieChildren[arrayIndex] = new CoordinateTrie(normalized, original, coordLong, coordLat, letter, true, trieChildren[arrayIndex] == null ? allocateEmptyTrieArray() : trieChildren[arrayIndex].trieChildren);
+            trieChildren[arrayIndex] = new CoordinateTrie(country, normalized, original, coordLong, coordLat, letter, true, trieChildren[arrayIndex] == null ? allocateEmptyTrieArray() : trieChildren[arrayIndex].trieChildren);
             return;
         }
 
@@ -130,7 +154,7 @@ class CoordinateTrie {
                 trieChild = trieChildren[arrayIndex];
             }
             // enter recursion
-            trieChild.buildTrie(original, normalized, charPosition + 1, coordLong, coordLat);
+            trieChild.buildTrie(country, original, normalized, charPosition + 1, coordLong, coordLat);
         }
     }
 

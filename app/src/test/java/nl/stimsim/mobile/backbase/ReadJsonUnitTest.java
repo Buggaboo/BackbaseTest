@@ -1,9 +1,12 @@
 package nl.stimsim.mobile.backbase;
 
+import com.google.gson.stream.JsonReader;
+
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
@@ -57,7 +60,11 @@ public class ReadJsonUnitTest {
         DataReader dataReader = new DataReader();
         InputStream stream = new ByteArrayInputStream(sampleJson.getBytes(StandardCharsets.UTF_8));
         CoordinateTrie root = new CoordinateTrie();
-        dataReader.fromJsonReader(root, stream);
+
+        InputStreamReader inputStreamReader = new InputStreamReader(stream, "UTF-8");
+        JsonReader reader = new JsonReader(inputStreamReader);
+
+        dataReader.fromJsonReader(root, reader);
 
         Set<CoordinateTrie> set = new HashSet<>();
         root.searchTree("bir", set);
@@ -72,12 +79,11 @@ public class ReadJsonUnitTest {
 
         root.searchTree("a", set);
         assertEquals(stringifyTrieSet(set),2, set.size());
-    }
 
-    /*
-    @Test
-    public void readWithRegEx() throws Exception {
+        // Ptitsefabrika
+        set.clear();
 
+        root.searchTree("Ptitsefabrika", set);
+        assertEquals(stringifyTrieSet(set),1, set.size());
     }
-    */
 }

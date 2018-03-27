@@ -1,6 +1,8 @@
 package nl.stimsim.mobile.backbase;
 
-import java.util.Map;
+import com.google.gson.stream.JsonReader;
+
+import java.io.IOException;
 import java.util.Observable;
 
 /**
@@ -9,14 +11,16 @@ import java.util.Observable;
 
 public class ViewModel extends Observable {
     private static final ViewModel ourInstance = new ViewModel();
+    final private DataReader dataReader = new DataReader();
     private CoordinateTrie root;
 
     public static ViewModel getInstance() {
         return ourInstance;
     }
 
-    public void setTrie(CoordinateTrie trie) {
+    public void setTrie(final CoordinateTrie trie, final JsonReader reader) throws IOException {
         this.root = trie;
+        dataReader.fromJsonReader(root, reader);
     }
 
     private ViewModel() {
