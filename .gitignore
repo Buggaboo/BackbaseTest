@@ -1,0 +1,63 @@
+# built apps
+*.apk
+*.ap_
+*.ipa
+streamone-android-sdk.jks
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin
+gen
+xtend-gen
+build
+
+# Local configuration file (sdk path, etc)
+local.properties
+*~
+
+# gradle
+gradle/
+gradlew
+gradlew.bat
+.gradle
+build
+gradle.properties
+
+# IDEA
+./out
+.DS_Store
+.idea
+*.iml
+
+# Pod
+Pods/
+Podfile.lock
+
+# eclipse
+.classpath
+.project
+.settings/
+*.log
+
+# log files
+*error*.txt
+*debug*.txt
+
+# project specific files
+environment.properties
+gradle.properties
+
+# release
+releases/
+
+# certificates
+certificates/
+
+# fabric crashlytics
+app/src/main/assets/crashlytics*.properties
+app/src/main/res/values/com_crashlytics_export_strings.xml
