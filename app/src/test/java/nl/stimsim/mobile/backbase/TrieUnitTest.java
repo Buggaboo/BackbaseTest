@@ -102,7 +102,6 @@ public class TrieUnitTest {
 
         list.clear();
 
-        // TODO in the UI filter on non-alphabetical values
         root.searchTree("doesn't exist ''''", list);
         assertTrue(stringifyTrieList(list), 0 == list.size());
 
