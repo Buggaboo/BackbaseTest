@@ -71,7 +71,7 @@ public class CoordinateTrie {
         String result =  Normalizer
             .normalize(input.toLowerCase(), Normalizer.Form.NFD);
 
-        result = DIACRITIC_REMOVER.matcher(input).replaceAll("");
+        result = DIACRITIC_REMOVER.matcher(result).replaceAll("");
         result = SPACES.matcher(result).replaceAll("");
         result = WEIRD_BACKTICK.matcher(result).replaceAll("");
         result = RINGEL_SS.matcher(result).replaceAll("ss");
