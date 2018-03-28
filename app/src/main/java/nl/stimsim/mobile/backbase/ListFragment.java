@@ -2,6 +2,7 @@ package nl.stimsim.mobile.backbase;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -30,6 +31,7 @@ public class ListFragment extends Fragment implements Observer, TextWatcher {
     public final static String TAG = "LIST_TAG";
 
     private RecyclerViewAdapter adapter;
+    public static final String LAST_ENTERED_TEXT = "last_entered_text";
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -50,6 +52,9 @@ public class ListFragment extends Fragment implements Observer, TextWatcher {
         ViewModel.getInstance().addObserver(this);
         setupAdapter(view);
         setupSearch(view);
+        if (savedInstanceState != null && savedInstanceState.containsKey(LAST_ENTERED_TEXT)) {
+            search.setText(savedInstanceState.getCharSequence(LAST_ENTERED_TEXT));
+        }
         return view;
     }
 
@@ -57,6 +62,13 @@ public class ListFragment extends Fragment implements Observer, TextWatcher {
     TextView emptyText;
     Drawable divider;
     EditText search;
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        String lastEnteredText = search.getText().toString();
+        outState.putCharSequence(LAST_ENTERED_TEXT, lastEnteredText);
+        super.onSaveInstanceState(outState);
+    }
 
     private void setupSearch(View view) {
         search = view.findViewById(R.id.search);

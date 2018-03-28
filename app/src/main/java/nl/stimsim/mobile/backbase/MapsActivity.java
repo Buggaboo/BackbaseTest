@@ -110,7 +110,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (backStackEntryCount > 1) {
             super.onBackPressed();
         }else {
-            finish();
+            finish(); // if you were wondering what happened to onSaveInstance
         }
     }
 }
