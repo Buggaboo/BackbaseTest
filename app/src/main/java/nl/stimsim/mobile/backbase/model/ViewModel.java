@@ -46,11 +46,18 @@ public class ViewModel extends Observable {
      * @param input
      */
     public void onFilter(final String input) {
-        list.clear();
-        root.searchTree(input, list); // Heavy operation? Dedicated thread? It seems overkill.
-        setChanged();
-        notifyObservers(list);
-        clearChanged();
+        if (input.length() == 0) {
+            list.clear();
+            setChanged();
+            notifyObservers(list);
+            clearChanged();
+        }else {
+            list.clear();
+            root.searchTree(input, list); // Heavy operation? Dedicated thread? It seems overkill.
+            setChanged();
+            notifyObservers(list);
+            clearChanged();
+        }
     }
 
     /**
