@@ -47,6 +47,4 @@ public class DataReader {
         }
         reader.endArray();
     }
-
-    // TODO RegExp implementation... later, if time allows, I doubt it will be faster and more correct...
 }

@@ -69,7 +69,7 @@ public class RecyclerViewAdapter extends RecyclerViewEmptySupport.Adapter<Recycl
 
         @Override
         public void onClick(View view) {
-            ViewModel.getInstance().onSelectedCoordinates(trie);
+            ViewModel.getInstance().onSelected(trie);
         }
     }
 }

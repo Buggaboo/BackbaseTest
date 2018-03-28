@@ -63,18 +63,18 @@ public class ViewModel extends Observable {
     /**
      *
      * When a selection is made from the list,
-     * this passes the selected trie node,
+     * this passes the selected trie leaf,
      * to anyone who's listening.
      * Also, loosely coupled.
      *
      * Normally, I'd use Rx or LiveData.
      * An Observable suffices.
      *
-     * @param node
+     * @param leaf
      */
-    public void onSelectedCoordinates(CoordinateTrie node) {
+    public void onSelected(CoordinateTrie leaf) {
         setChanged();
-        notifyObservers(node);
+        notifyObservers(leaf);
         clearChanged();
     }
 

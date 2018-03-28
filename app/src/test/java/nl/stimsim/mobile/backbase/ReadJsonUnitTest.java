@@ -18,7 +18,7 @@ import static nl.stimsim.mobile.backbase.TrieUnitTest.stringifyTrieList;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Local unit test for the Trie implementation, which will execute on the development machine (host).
+ * Local unit test for the (GSON) JsonReader implementation
  */
 public class ReadJsonUnitTest {
 

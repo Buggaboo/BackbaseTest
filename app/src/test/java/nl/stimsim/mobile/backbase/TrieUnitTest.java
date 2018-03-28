@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Local unit test for the Trie implementation, which will execute on the development machine (host).
+ * Local unit test for the Trie implementation
  */
 public class TrieUnitTest {
     final static float dud = 1.0f;
