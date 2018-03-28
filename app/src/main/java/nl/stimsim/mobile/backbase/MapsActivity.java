@@ -34,6 +34,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         ViewModel.getInstance().addObserver(this);
 
+        setupListFragment();
+    }
+
+    private void setupListFragment() {
         FragmentManager supportFragmentManager = getSupportFragmentManager();
 
         FragmentTransaction tx = supportFragmentManager.beginTransaction();
@@ -83,18 +87,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             selectedNode = (CoordinateTrie) o;
 
             // 1. prepare the map
-            FragmentManager supportFragmentManager = getSupportFragmentManager();
-            FragmentTransaction tx = supportFragmentManager.beginTransaction();
-            mapFragment = (SupportMapFragment) supportFragmentManager.findFragmentByTag(MAP_TAG);
-            if (mapFragment == null) {
-                mapFragment = SupportMapFragment.newInstance();
-                tx.add(R.id.nest, mapFragment, ListFragment.TAG)
-                        .addToBackStack(ListFragment.TAG)
-                        .commit();
-            }
+            setupMap();
 
             // 2. load the map, onMapReady should kick in
             mapFragment.getMapAsync(this);
+        }
+    }
+
+    private void setupMap() {
+        FragmentManager supportFragmentManager = getSupportFragmentManager();
+        FragmentTransaction tx = supportFragmentManager.beginTransaction();
+        mapFragment = (SupportMapFragment) supportFragmentManager.findFragmentByTag(MAP_TAG);
+        if (mapFragment == null) {
+            mapFragment = SupportMapFragment.newInstance();
+            tx.add(R.id.nest, mapFragment, ListFragment.TAG)
+                    .addToBackStack(ListFragment.TAG)
+                    .commit();
         }
     }
 
