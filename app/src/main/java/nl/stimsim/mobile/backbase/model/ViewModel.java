@@ -1,5 +1,7 @@
 package nl.stimsim.mobile.backbase.model;
 
+import android.support.annotation.Nullable;
+
 import com.google.gson.stream.JsonReader;
 
 import java.io.IOException;
@@ -33,9 +35,11 @@ public class ViewModel extends Observable {
      * @param reader
      * @throws IOException
      */
-    public void setTrie(final CoordinateTrie trie, final JsonReader reader) throws IOException {
+    public void setTrie(final CoordinateTrie trie, @Nullable final JsonReader reader) throws IOException {
         this.root = trie;
-        dataReader.fromJsonReader(root, reader);
+        if (reader != null) {
+            dataReader.fromJsonReader(root, reader);
+        }
     }
 
     /**
